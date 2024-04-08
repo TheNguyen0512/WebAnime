@@ -1,0 +1,373 @@
+h2 {
+    margin: auto;
+    width: max-content;
+    color: white;
+}
+
+span {
+    display: inline-block;
+    padding: 5px;
+}
+
+.seperator {
+    height: 12px;
+    display: block;
+}
+
+.main {
+    padding: 70px;
+    width: 300px;
+    height: auto;
+    border: 1.5px grey solid;
+    border-radius: 5px;
+    margin: -4.5px auto;
+}
+
+label {
+    font-weight: bold;
+    color: white;
+    font-size: 1.25em;
+}
+
+input {
+    width: 280px;
+    border: none;
+    border-radius: 5px;
+    padding: 8px;
+    outline: none;
+    color: #000;
+}
+
+input[type="submit"] {
+    width: 260px;
+    background-color: red;
+    font-weight: bold;
+}
+
+input[type="submit"]:hover {
+    cursor: pointer;
+    border: 2px gray solid;
+    background-color: red;
+    transform: scale(0.95);
+}
+
+#errormessage {
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    border-radius: 12px;
+}
+
+.loginul {
+    background-size: cover;
+    background-position: center;
+    padding-block: var(--section-padding);
+}
+
+.login {
+    margin: 0 auto;
+    width: 400px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 5px;
+    padding: 30px 70px 60px 70px;
+    margin-bottom: 12px;
+    margin-top: 24px;
+}
+
+.login h1 {
+    color: white;
+    padding-bottom: 10px;
+
+    text-align: center;
+}
+
+.bottom {
+    background-color: rgba(0, 0, 0, 0.35);
+    color: #bdc7c9;
+}
+
+
+.color_text {
+    color: #bdc7c9;
+}
+
+.color_link {
+    color: #bdc7c9;
+}
+
+.signup-link {
+    color: white;
+    text-decoration: underline;
+}
+
+.signup-link:hover {
+    text-decoration: underline;
+}
+
+.face_icon {
+    color: #3b5998;
+    margin-right: 6px;
+    font-size: 20px;
+}
+
+.log_face {
+    text-decoration: none;
+    margin-left: 10px;
+    font-size: 0.8rem;
+}
+
+.login-face {
+    text-align: center;
+    margin: 10px 0 15px 0;
+    vertical-align: middle;
+    color: #bdc7c9;
+
+}
+
+.al_members {
+    margin: 12px 0px;
+    color: #a0a2a2;
+    padding: 0px 12px;
+    font-size: 16.2px;
+}
+
+.log-link {
+    text-decoration: none;
+    color: whitesmoke;
+}
+
+.log-link:hover {
+    text-decoration: underline;
+}
+
+.help {
+    text-align: right;
+}
+
+.help a {
+    text-decoration: none;
+    font-size: 16.5px;
+}
+
+.help a:hover {
+    text-decoration: underline;
+}
+
+.protection {
+    font-size: 0.8rem;
+    color: #bdc7c9;
+    text-align: center;
+}
+
+.protection a {
+    text-decoration: none;
+}
+
+.protection a:hover {
+    text-decoration: underline;
+}
+
+.tel-link {
+    text-decoration: none;
+    color: #e1e5ea;
+}
+
+.tel-link:hover {
+    text-decoration: underline;
+}
+
+.select-language option {
+    padding-left: 10px;
+}
+
+.input-text {
+    margin-bottom: 20px;
+}
+
+.input-with-icon {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-with-icon input {
+    width: 100%;
+    height: 45px;
+    background-color: #333;
+    color: white;
+    border-radius: 5px;
+    border: none;
+    outline: transparent;
+    text-indent: 8px;
+}
+
+.input-with-icon button {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.input-with-icon input::-webkit-input-placeholder {
+    font-size: 1rem;
+    color: #bdc7c9;
+}
+
+.input-with-icon input::-moz-placeholder {
+    font-size: 1rem;
+    color: #bdc7c9;
+    text-indent: 40px;
+}
+
+.input-text input {
+    width: 100%;
+    height: 45px;
+    background-color: #333;
+    color: white;
+    border-radius: 5px;
+    border: none;
+    outline: transparent;
+    text-indent: 8px;
+}
+
+.input-text input::-webkit-input-placeholder {
+    font-size: 1rem;
+    color: #bdc7c9;
+}
+
+.input-text input::-moz-placeholder {
+    font-size: 1rem;
+    color: #bdc7c9;
+    text-indent: 40px;
+}
+
+.signin-button {
+    width: auto;
+    /* margin-top: 20px; */
+    margin-left: auto;
+    /* Set left margin to auto */
+    margin-right: auto;
+    /* Set right margin to auto */
+    padding: 13px;
+    border-radius: 5px;
+    background-color: red;
+    color: white;
+    border: none;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.05rem;
+    cursor: pointer;
+    display: block;
+    /* Ensure it's displayed as a block-level element */
+}
+
+
+.aftersubmit {
+    opacity: 1;
+    width: 400px;
+    padding: 20px 75px 20px 65px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 5px;
+    margin: 0px auto;
+}
+
+.field-icon {
+    position: absolute;
+    margin-left: -30px;
+    margin-top: 15px;
+    color: white;
+}
+
+.field-icon:hover {
+    cursor: pointer;
+    background-color: transparent;
+}
+
+.questions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+@media only screen and (max-width: 450px) {
+
+    .login,
+    .aftersubmit {
+        width: 300px;
+        padding: 15px;
+    }
+}
+
+@media only screen and (max-width: 350px) {
+
+    .login,
+    .aftersubmit {
+        width: 240px;
+        padding: 10px;
+    }
+
+    input[type="submit"] {
+        width: 220px;
+    }
+
+    .help a {
+        margin-left: 0% !important;
+    }
+}
+
+.back-button {
+    position: fixed;
+    background-color: red;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.back-button:hover {
+    background-color: #aaa;
+    /* Màu khi di chuột qua */
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-menu {
+    position: absolute;
+    left: 90%;
+    transform: translateX(-100%);
+    z-index: 2;
+    display: block;
+}
+
+.btn-dropdown {
+    background: var(--rich-black-fogra-29);
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+    font-family: inherit;
+    color: inherit;
+    border: 1px solid #ccc;
+    /* Add a border */
+    border-radius: 5px;
+    /* Optional: Add some border radius for styling */
+}
+
+.btn-dropdown:focus,
+.btn-dropdown:hover {
+    border-color: #333;
+    /* Change border color on focus/hover */
+}
+
+.flex flex-col gap-3 h-screen w-screen p-6{
+    color: #000;
+}
