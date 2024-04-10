@@ -2,15 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faBookmark } from '@fortawesome/free-regular-svg-icons';
+import Header from '../../components/common/header';
+import Footer from '../../components/common/footer';
 
 const AnimeGenres = () => {
     const { genreId } = useParams();
     const [selectedGenre, setSelectedGenre] = useState('');
     const [animeByGenre, setAnimeByGenre] = useState([]);
-    const [liked, setLiked] = useState({});
-    const [bookmarked, setBookmarked] = useState({});
 
     useEffect(() => {
         axios.get(`http://localhost:3030/anime-by-genre/${genreId}`)
@@ -39,52 +37,37 @@ const AnimeGenres = () => {
                 console.error('Error fetching anime genres:', error);
             });
     }, [genreId]);
-
-    const toggleLike = (id) => {
-        setLiked(prevState => ({
-            ...prevState,
-            [id]: !prevState[id]
-        }));
-    };
-
-    const toggleBookmark = (id) => {
-        setBookmarked(prevState => ({
-            ...prevState,
-            [id]: !prevState[id]
-        }));
-    };
-
     return (
-        <main>
-            <article>
-                <section className="top-rated">
-                    <div className="container">
-                        <p className="section-subtitle">Online Streaming</p>
-                        <h2 className="h2 section-title">{selectedGenre}</h2>
-                        <ul className="movies-list">
-                            {animeByGenre.map(anime => (
-                                <li key={anime.id}>
-                                    <div className='movie-card'>
-                                        <figure className='card-banner'>
-                                            <img src={anime.imageUrl} alt={anime.ani_name} />
-                                            <div className="icons">
-                                                <FontAwesomeIcon icon={faHeart} className="favorite-icon" style={{ color: liked[anime.id] ? 'red' : 'white', fontSize: '24px' }} onClick={() => toggleLike(anime.id)} />
-                                                <FontAwesomeIcon icon={faBookmark} className="whitelist-icon" style={{ color: bookmarked[anime.id] ? 'blue' : 'white', fontSize: '24px' }} onClick={() => toggleBookmark(anime.id)} />
+        <div>
+            <Header />
+            <main>
+                <article>
+                    <section className="top-rated">
+                        <div className="container">
+                            <p className="section-subtitle">Online Streaming</p>
+                            <h2 className="h2 section-title">{selectedGenre}</h2>
+                            <ul className="movies-list">
+                                {animeByGenre.map(anime => (
+                                    <li key={anime.id}>
+                                        <div className='movie-card'>
+                                            <figure className='card-banner'>
+                                                <img src={anime.imageUrl} alt={anime.ani_name} />
+                                            </figure>
+                                            <div className='title-wrapper'>
+                                                <Link to={`/anime/${anime.id}`}>
+                                                    <h3 style={{ color: "white" }}>{anime.ani_name}</h3>
+                                                </Link>
                                             </div>
-                                        </figure>
-                                        <div className='title-wrapper'>
-                                            <Link to={`/anime/${anime.id}`}>
-                                                <h3>{anime.ani_name}</h3>
-                                            </Link>
                                         </div>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                </section>
-            </article>
-        </main>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </section>
+                </article>
+            </main>
+            <Footer />
+        </div>
     );
 };
 

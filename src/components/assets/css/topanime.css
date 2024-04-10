@@ -24,14 +24,14 @@
     width: 100%;
 }
 
-.card-banner {
+.card-banner2 {
     width: 200px;
     /* Độ rộng của hình ảnh */
     margin-right: 20px;
     /* Khoảng cách giữa hình ảnh và nội dung */
 }
 
-.card-banner img {
+.card-banner2 img {
     width: auto;
     /* Thay đổi từ 100% thành auto để giữ kích thước tự nhiên của hình ảnh */
     max-width: 100%;

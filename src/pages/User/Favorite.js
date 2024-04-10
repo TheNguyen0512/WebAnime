@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-
 import swal from 'sweetalert';
+import Header from '../../components/common/header';
+import Footer from '../../components/common/footer';
 
 const Favorite = () => {
     const [favorite, setFavorite] = useState([]);
@@ -69,33 +70,37 @@ const Favorite = () => {
     }
 
     return (
-        <main>
-            <article>
-                <section className="top-rated">
-                    <div className="container">
-                        <h2 className="h2 section-title">Favorite</h2>
-                        {favorite.length === 0 ? (
-                            <div>No Favorite available</div>
-                        ) : (
-                            <ul className="wishlist-list">
-                                {favorite.map((item, index) => (
-                                    <li key={index} className="wishlist-item">
-                                        <span className="index">{index + 1}</span>
-                                        <img className="wishlist-image" src={item.imageUrl} alt={item.ani_name} />
-                                        <Link to={`/anime/${item.ani_id}`}>
-                                            <div className="wishlist-details">
-                                                <h3 className="wishlist-title">{item.ani_name}</h3>
-                                            </div>
-                                        </Link>
-                                        <button className="delete-button" onClick={() => removeFromFavorite(item.ani_id)}>Delete</button>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
-                </section>
-            </article>
-        </main>
+        <div>
+            <Header />
+            <main>
+                <article>
+                    <section className="top-rated">
+                        <div className="container">
+                            <h2 className="h2 section-title">Favorite</h2>
+                            {favorite.length === 0 ? (
+                                <div style={{ color: "white" }}>No Favorite available</div>
+                            ) : (
+                                <ul className="wishlist-list">
+                                    {favorite.map((item, index) => (
+                                        <li key={index} className="wishlist-item">
+                                            <span className="index">{index + 1}</span>
+                                            <img className="wishlist-image" src={item.imageUrl} alt={item.ani_name} />
+                                            <Link to={`/anime/${item.ani_id}`}>
+                                                <div className="wishlist-details">
+                                                    <h3 className="wishlist-title">{item.ani_name}</h3>
+                                                </div>
+                                            </Link>
+                                            <button className="delete-button" onClick={() => removeFromFavorite(item.ani_id)}>Delete</button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    </section>
+                </article>
+            </main>
+            <Footer />
+        </div>
     );
 };
 

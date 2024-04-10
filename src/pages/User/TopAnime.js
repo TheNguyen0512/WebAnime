@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faBookmark } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
+import Header from '../../components/common/header';
+import Footer from '../../components/common/footer';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faStar, faEye } from '@fortawesome/free-solid-svg-icons';
 
 
 const TopAnime = () => {
     const [topAnime, setTopAnime] = useState([]);
-    const [liked, setLiked] = useState({});
-    const [bookmarked, setBookmarked] = useState({});
+    const [selectedType, setSelectedType] = useState("");
 
     useEffect(() => {
-        axios.get('http://localhost:3030/top-rated-anime')
+        axios.get(`http://localhost:3030/top-rated-anime?type=${selectedType}`)
             .then(response => {
                 const updatedAnimeData = response.data.map(anime => {
 
@@ -32,61 +33,62 @@ const TopAnime = () => {
         return () => {
             topAnime.forEach(anime => URL.revokeObjectURL(anime.imageUrl));
         };
-    }, []);
+    }, [selectedType]);
 
-
-    const toggleLike = (id) => {
-        setLiked(prevState => ({
-            ...prevState,
-            [id]: !prevState[id]
-        }));
-    };
-
-    const toggleBookmark = (id) => {
-        setBookmarked(prevState => ({
-            ...prevState,
-            [id]: !prevState[id]
-        }));
+    const handleFilter = (type) => {
+        if (selectedType !== type) {
+            setSelectedType(type);
+        }
     };
 
     return (
-        <main>
-            <article>
-                <section className="top-rated">
-                    <div className="container">
-                        <h2 className="h2 section-title">Top Anime</h2>
-                        <ul className="filter-list">
-                            <li>
-                                <button className="filter-btn">Movies</button>
-                            </li>
-                            <li>
-                                <button className="filter-btn">TV Series</button>
-                            </li>
-                        </ul>
-                        <ul className="top-list">
-                            {topAnime.map((anime, index) => (
-                                <li key={anime.id} className="movie-row">
-                                    <span className="index">{index + 1}</span>
-                                    <img className="movie-top-image" src={anime.imageUrl} alt={anime.ani_name} />
-                                    <div className="movie-title">
-                                        <Link to={`/anime/${anime.id}`}>
-                                            <h3>{anime.ani_name}</h3>
-                                        </Link>
-                                        <div className="movie-title">
-                                            <h3>{anime.ani_score}</h3>
-                                        </div>
-                                        <div className="movie-title">
-                                            <h3>{anime.ani_views} views</h3>
-                                        </div>
-                                    </div>
-
+        <div>
+            <Header />
+            <main>
+                <article>
+                    <section className="top-rated">
+                        <div className="container">
+                            <h2 className="h2 section-title">Top Anime</h2>
+                            <ul className="filter-list">
+                                <li>
+                                    <button className={`filter-btn ${selectedType === "All" ? "active" : ""}`} onClick={() => handleFilter("")}>All</button>
                                 </li>
-                            ))}
-                        </ul>
-                    </div>
-                </section>
-            </article>
-        </main>
+                                <li>
+                                    <button className={`filter-btn ${selectedType === "Movies" ? "active" : ""}`} onClick={() => handleFilter("Movies")}>Movies</button>
+                                </li>
+                                <li>
+                                    <button className={`filter-btn ${selectedType === "TV" ? "active" : ""}`} onClick={() => handleFilter("TV")}>TV Series</button>
+                                </li>
+                            </ul>
+                            <ul className="top-list">
+                                {topAnime.map((anime, index) => (
+                                    <li key={anime.id} className="movie-row">
+                                        <span style={{ color: "white" }} className="index">{index + 1}</span>
+                                        <img style={{ color: "white" }} className="movie-top-image" src={anime.imageUrl} alt={anime.ani_name} />
+                                        <div className="movie-title">
+                                            <Link to={`/anime/${anime.id}`}>
+                                                <h3 style={{ color: "white" }}>{anime.ani_name}</h3>
+                                            </Link>
+                                            <div className="movie-title">
+                                                <h3 style={{ color: "white" }}>
+                                                    <FontAwesomeIcon icon={faStar} style={{ color: "gold" }} /> {anime.ani_score.toFixed(1)}
+                                                </h3>
+
+                                            </div>
+                                            <div className="movie-title">
+                                                <h3 style={{ color: "white" }}> <FontAwesomeIcon icon={faEye} style={{ color: "white" }} /> {anime.ani_views} views</h3>
+                                            </div>
+                                        </div>
+
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </section>
+                </article>
+            </main>
+            <Footer />
+        </div>
 
     );
 };

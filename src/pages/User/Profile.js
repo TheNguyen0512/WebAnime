@@ -4,6 +4,8 @@ import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import bcrypt from 'bcryptjs';
 import swal from 'sweetalert';
+import Header from '../../components/common/header';
+import Footer from '../../components/common/footer';
 
 const Profile = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -84,42 +86,46 @@ const Profile = () => {
 
 
     return (
-        <section className="profile">
-            <div className='profile container'>
-                <form className="form-profile">
-                    <h1 className="sign">Profile</h1>
-                    <div className="input-text">
-                        <label htmlFor="name">Name:</label>
-                        <input
-                            type="text"
-                            id="name"
-                            name="name"
-                            placeholder={userName}
-                            value={newName}
-                            onChange={(e) => setNewName(e.target.value)}
-                        />
-                    </div>
-                    <div className="input-text">
-                        <label htmlFor="email">Email:</label>
-                        <input type="email" id="email" name="email" value={userEmail} readOnly />
-                    </div>
-                    <div className="input-with-icon">
-                        <label htmlFor="name">Password:</label>
-                        <input
-                            type={showPassword ? "text" : "password"}
-                            name="password"
-                            placeholder="Password"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                        />
-                        <button type="button" onClick={togglePasswordVisibility}>
-                            <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
-                        </button>
-                    </div>
-                    <button className='signin-button' type="button" onClick={handleUpdateProfile}>Update Profile</button>
-                </form>
-            </div>
-        </section>
+        <div>
+            <Header />
+            <section className="profile">
+                <div className='profile container'>
+                    <form className="form-profile">
+                        <h1 className="sign">Profile</h1>
+                        <div className="input-text">
+                            <label htmlFor="name">Name:</label>
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                placeholder={userName}
+                                value={newName}
+                                onChange={(e) => setNewName(e.target.value)}
+                            />
+                        </div>
+                        <div className="input-text">
+                            <label htmlFor="email">Email:</label>
+                            <input type="email" id="email" name="email" value={userEmail} readOnly />
+                        </div>
+                        <div className="input-with-icon">
+                            <label htmlFor="name">Password:</label>
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                name="password"
+                                placeholder="Password"
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                            />
+                            <button type="button" onClick={togglePasswordVisibility}>
+                                <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
+                            </button>
+                        </div>
+                        <button className='signin-button' type="button" onClick={handleUpdateProfile}>Update Profile</button>
+                    </form>
+                </div>
+            </section>
+            <Footer />
+        </div>
     );
 };
 export default Profile;

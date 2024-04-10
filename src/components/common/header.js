@@ -5,17 +5,12 @@ import "../assets/css/login.css"
 import "../assets/css/topanime.css"
 import logo from "../assets/images/logo.svg";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faTimes, faUser } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
-
 
 const Header = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [userName, setUserName] = useState('');
-    const [userEmail, setUserEmail] = useState('');
-    const [isAdmin, setIsAdmin] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(null);
     const [genres, setGenres] = useState([]);
     const navigate = useNavigate();
     const location = useLocation();
@@ -31,76 +26,90 @@ const Header = () => {
     };
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            setIsLoggedIn(true);
-            const storedUserName = localStorage.getItem('userName');
-            setUserName(storedUserName);
-        }
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://localhost:3030/ani-genre');
+                setGenres(response.data);
+            } catch (error) {
+                console.error('Error fetching anime genres:', error);
+            }
+
+            const token = localStorage.getItem('token');
+            const userRole = parseInt(localStorage.getItem('isAdmin'));
+            if (token) {
+                setIsLoggedIn(true);
+                setIsAdmin(userRole);
+            }
+
+            // Add event listeners
+            const navOpenBtn = document.querySelector("[data-menu-open-btn]");
+            const navCloseBtn = document.querySelector("[data-menu-close-btn]");
+            const navbar = document.querySelector("[data-navbar]");
+            const overlay = document.querySelector("[data-overlay]");
+
+            const navElemArr = [navOpenBtn, navCloseBtn, overlay];
+
+            for (let i = 0; i < navElemArr.length; i++) {
+                navElemArr[i].addEventListener("click", function () {
+                    navbar?.classList.toggle("active");
+                    overlay?.classList.toggle("active");
+                    document?.body.classList.toggle("active");
+                });
+            }
+
+            const header = document.querySelector("[data-header]");
+            window.addEventListener("scroll", function () {
+                window.scrollY >= 10 ? header?.classList.add("active") : header?.classList.remove("active");
+            });
+
+            const goTopBtn = document.querySelector("[data-go-top]");
+            window.addEventListener("scroll", function () {
+                window.scrollY >= 500 ? goTopBtn?.classList.add("active") : goTopBtn?.classList.remove("active");
+            });
+
+            // Cleanup
+            return () => {
+                navElemArr.forEach(elem => {
+                    elem.removeEventListener("click", () => {
+                        navbar?.classList.toggle("active");
+                        overlay?.classList.toggle("active");
+                        document?.body.classList.toggle("active");
+                    });
+                });
+                window.removeEventListener("scroll", () => {
+                    window.scrollY >= 10 ? header?.classList.add("active") : header?.classList.remove("active");
+                });
+                window.removeEventListener("scroll", () => {
+                    window.scrollY >= 500 ? goTopBtn?.classList.add("active") : goTopBtn?.classList.remove("active");
+                });
+            };
+        };
+
+        fetchData();
+
     }, []);
 
     useEffect(() => {
-        checkLoggedInStatus();
-    }, [location]);
-
-    const checkLoggedInStatus = () => {
         const token = localStorage.getItem('token');
-        if (token) {
-            setIsLoggedIn(true);
-            const storedUserName = localStorage.getItem('userName');
-            setUserName(storedUserName);
-            const storedUserEmail = localStorage.getItem('userEmail');
-            setUserEmail(storedUserEmail);
-            const storedIsAdmin = localStorage.getItem('isAdmin');
-            setUserEmail(storedIsAdmin);
-        } else {
-            setIsLoggedIn(false);
-            setUserName('');
-        }
-    };
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('userName');
-        localStorage.removeItem('isAdmin')
-        setIsLoggedIn(false);
-        setUserName('');
-        navigate('/');
-    };
-
-    const handleGenreClick = (genreId) => {
-        navigate(`/anime-genres/${genreId}`);
-    };
-
-
-    useEffect(() => {
-        if (genres.length === 0) {
-            axios.get('http://localhost:3030/ani-genre')
-                .then(response => {
-                    setGenres(response.data);
-                })
-                .catch(error => {
-                    console.error('Error fetching anime genres:', error);
-                });
-        }
-    }, [genres]);
-
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        const isAdmin = localStorage.getItem('isAdmin');
         if (!token) {
             // If not logged in, redirect to login page if trying to access certain routes
-            if (['/favorite', '/wishlist', '/profile', '/admin'].includes(location.pathname)) {
+            if (['/favorite', '/wishlist', '/profile'].includes(location.pathname) || location.pathname.startsWith('/admin')) {
                 navigate('/login');
             }
-        } else if (token) {
-            // If logged in, prevent access to login and register pages
-            if (['/login', '/register'].includes(location.pathname)) {
-                navigate('/');
+        } else {
+            // If logged in, prevent access to login and register pages based on user role
+            if (isAdmin === 1) { // Check for admin role
+                if (['/login', '/register'].includes(location.pathname)) {
+                    navigate('/admin');
+                }
+            } else if (isAdmin === 2) { // Check for user role
+                if (['/login', '/register'].includes(location.pathname) || location.pathname.startsWith('/admin')) {
+                    navigate('/');
+                }
             }
-        } 
-    }, [isLoggedIn, location, navigate]);
-
+        }
+    }, [location.pathname, isAdmin, navigate]);
 
     const handleSearch = () => {
         axios.get(`http://localhost:3030/search?searchQuery=${searchQuery}`)
@@ -110,37 +119,19 @@ const Header = () => {
             .catch(error => {
                 console.error('Error searching anime:', error);
             });
+    };    
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('isAdmin');
+        setIsLoggedIn(false);
+        setIsAdmin(null);
+        navigate('/');
     };
 
-
-
-
-    useEffect(() => {
-        const navOpenBtn = document.querySelector("[data-menu-open-btn]");
-        const navCloseBtn = document.querySelector("[data-menu-close-btn]");
-        const navbar = document.querySelector("[data-navbar]");
-        const overlay = document.querySelector("[data-overlay]");
-
-        const navElemArr = [navOpenBtn, navCloseBtn, overlay];
-
-        for (let i = 0; i < navElemArr.length; i++) {
-            navElemArr[i].addEventListener("click", function () {
-                navbar?.classList.toggle("active");
-                overlay?.classList.toggle("active");
-                document?.body.classList.toggle("active");
-            });
-        }
-
-        const header = document.querySelector("[data-header]");
-        window.addEventListener("scroll", function () {
-            window.scrollY >= 10 ? header?.classList.add("active") : header?.classList.remove("active");
-        });
-
-        const goTopBtn = document.querySelector("[data-go-top]");
-        window.addEventListener("scroll", function () {
-            window.scrollY >= 500 ? goTopBtn?.classList.add("active") : goTopBtn?.classList.remove("active");
-        });
-    }, []);
+    const handleGenreClick = (genreId) => {
+        navigate(`/anime-genres/${genreId}`);
+    };
 
     return (
         <header className="header" data-header>
@@ -184,9 +175,6 @@ const Header = () => {
                                             <Link to="/favorite" className="btn-third">
                                                 Favorite
                                             </Link>
-                                            <Link to="/" className="btn-third">
-                                                History
-                                            </Link>
                                             <Link to='/' className="btn-third" onClick={handleLogout}>
                                                 Logout
                                             </Link>
@@ -199,26 +187,18 @@ const Header = () => {
                         <Link to="/login" className="btn btn-primary">Sign in</Link>
                     )}
                 </div>
-
                 <button className="menu-open-btn" data-menu-open-btn>
                     <ion-icon name="reorder-two"></ion-icon>
                 </button>
-
                 <nav className="navbar" data-navbar>
-
                     <div className="navbar-top">
-
-                        <a href="./index.html" className="logo">
+                        <Link to="/" className="logo">
                             <img src={logo} alt="Filmlane logo" />
-                        </a>
-
+                        </Link>
                         <button className="menu-close-btn" data-menu-close-btn>
                             <FontAwesomeIcon icon={faTimes} />
                         </button>
-
-
                     </div>
-
                     <ul className="navbar-list">
                         <li>
                             <Link to="/" className="navbar-link">Home</Link>
@@ -278,5 +258,4 @@ const Header = () => {
         </header>
     );
 };
-
 export default Header;

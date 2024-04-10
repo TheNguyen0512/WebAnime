@@ -80,14 +80,14 @@
  * #RESET
 \*-----------------------------------*/
 
-*,
+/* *,
 *::before,
 *::after {
   color: #ffffff;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
+} */
 
 li {
   list-style: none;
@@ -341,6 +341,9 @@ body.active {
   border-radius: 6px;
   overflow: hidden;
   margin-bottom: 20px;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .movie-card .card-banner .icons {
@@ -1920,7 +1923,7 @@ body.active {
   /* Đặt khoảng cách từ nút tìm kiếm đến biên phải của ô nhập */
   transform: translateY(-50%);
   /* Dịch chuyển nút tìm kiếm lên trên để căn giữa theo chiều cao của ô nhập */
-  background-color: black;
+  background-color: rgb(255, 255, 255);
   /* Màu nền trong suốt */
   border: none;
   /* Loại bỏ đường viền */
@@ -2045,7 +2048,6 @@ body.active {
 }
 
 .anime-title {
-  margin-bottom: 20px;    
   flex: auto;
   width: auto;
 }
@@ -2071,6 +2073,9 @@ body.active {
   background: var(--gunmetal-1);
   border-radius: 6px;
   overflow: hidden;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 .card-info img {
@@ -2078,13 +2083,15 @@ body.active {
   height: auto;
 }
 
-.info-name-wrapper {
+.info-name-wrapper {  
+  color: #f0f0f0;
   font-size: 30px;
   margin-top: 15px;
   margin-bottom: 10px;
 }
 
 .info-overview-wrapper {
+  color: #f0f0f0;
   font-size: 14px;
   margin-bottom: 10px;
 }
@@ -2124,6 +2131,7 @@ h4 {
 
 /* CSS Styles */
 .video-tab{
+  color: #f0f0f0;
   border-radius: 5px;
   margin-bottom: 20px;
 }
@@ -2140,19 +2148,21 @@ h4 {
 }
 
 .comment-tab{
+  width: 100%;
+  display: flex;
   background-color: #f0f0f0;
   margin-bottom: 20px;
   border-radius: 5px;
 }
-.add-comment-section {
-  margin-top: 20px;
+.add-comment {  
+  width: 100%;
   margin-bottom: 20px;
   color: #000;
 }
 
 textarea {
   color: #333;
-  width: 100%;
+  width: 98.5%;
   height: 100px;
   padding: 10px;
   margin-bottom: 10px;
@@ -2168,20 +2178,14 @@ form {
 
 button[type="submit"] {
   align-self: flex-end;
-  /* Your existing button styles */
   background-color: #007bff;
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 10px;
   border-radius: 5px;
   cursor: pointer;
 }
 
-
-.comment-section {
-  margin-top: 20px;
-  margin-bottom: 20px;
-}
 
 .feedback-item {
   padding: 10px;
@@ -2195,6 +2199,7 @@ button[type="submit"] {
 }
 
 .feedback-item p {
+  margin-bottom: 0%;
   padding-left: 5px;
   color: black; /* Change text color to black */
 }
@@ -2207,7 +2212,7 @@ button[type="submit"] {
   padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
-  margin-top: 10px; /* Adjust margin as needed */
+  margin-top: 10px;
   margin-bottom: 20px;
   width: 100%;
 }

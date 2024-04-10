@@ -72,7 +72,7 @@ app.post('/login', async (req, res) => {
                 return res.status(402).json({ error: 'Invalid email or password' });
             }
 
-            const token = jwt.sign({ userId: user.id }, 'your_secret_key', { expiresIn: '1h' });
+            const token = jwt.sign({ userId: user.id }, 'your_secret_key', { expiresIn: '24h' });
 
             const insertSessionSql = 'INSERT INTO sessions (token, user_id) VALUES(?, ?)ON DUPLICATE KEY UPDATE token = VALUES(token);';
             db.query(insertSessionSql, [token, user.id], (err) => {
@@ -80,7 +80,7 @@ app.post('/login', async (req, res) => {
                     console.error(err);
                     return res.status(500).json({ error: 'Internal server error' });
                 }
-                return res.status(200).json({ message: 'Login successful', token, userName: user.name, userEmail: user.email });
+                return res.status(200).json({ message: 'Login successful', token, userName: user.name, userEmail: user.email, userRole: user.role});
             });
         } catch (error) {
             console.error(error);
@@ -91,7 +91,7 @@ app.post('/login', async (req, res) => {
 
 app.post('/register', (req, res) => {
     const { name, email, password } = req.body;
-    const sql = 'INSERT INTO users (name, email, password) VALUES (?, ?, ?)';
+    const sql = 'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, 2)';
     db.query(sql, [name, email, password], (err, result) => {
         if (err) {
             console.error(err);
@@ -298,11 +298,17 @@ app.post('/anime/:id/increment-view', (req, res) => {
 });
 
 app.post('/anime/:id/feedback', (req, res) => {
+    const token = req.headers.authorization.split(' ')[1];
+    const userId = getUserIdFromToken(token);
     const { id } = req.params;
-    const { feedback, userName } = req.body;
+    const { feedback } = req.body;
 
-    const sql = 'INSERT INTO anime_commands (ani_id, user_name, command) VALUES (?, ?, ?)';
-    db.query(sql, [id, userName, feedback], (err, result) => {
+    if (!userId) {
+        return res.status(401).json({ error: 'Invalid or expired token' });
+    }
+
+    const sql = 'INSERT INTO anime_commands (ani_id, user_id, command) VALUES (?, ?, ?)';
+    db.query(sql, [id, userId, feedback], (err, result) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ error: 'Internal server error' });
@@ -315,18 +321,27 @@ app.post('/anime/:id/feedback', (req, res) => {
 app.get('/anime/:id/feedback', (req, res) => {
     const { id } = req.params;
 
-    const sql = 'SELECT user_name, command FROM anime_commands WHERE ani_id = ? ORDER BY create_At DESC';
+    const sql = `SELECT users.name, anime_commands.command, anime_commands.create_At
+        FROM anime_commands
+        JOIN users ON anime_commands.user_id = users.id
+        WHERE anime_commands.ani_id = ?
+        ORDER BY anime_commands.create_At DESC;
+    `;
 
     db.query(sql, [id], (err, results) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ error: 'Internal server error' });
         }
-        console.log('Feedback retrieved successfully');
-        // console.log(results);
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: 'No feedback found for this anime' });
+        }
+
         res.status(200).json(results);
     });
 });
+
 
 app.get('/search', (req, res) => {
     const { searchQuery } = req.query;
@@ -473,8 +488,13 @@ app.post('/add-favorite', (req, res) => {
 });
 
 app.get('/top-rated-anime', (req, res) => {
-    const sql = 'SELECT id, ani_name, ani_img, ani_score, ani_views, ani_type FROM anime ORDER BY ani_score DESC, ani_views DESC LIMIT 10';
-
+    let type = req.query.type;
+    let sql;
+    if (type) {
+        sql = `SELECT id, ani_name, ani_img, ani_score, ani_views, ani_type FROM anime WHERE ani_type = '${type}' ORDER BY ani_score DESC, ani_views DESC LIMIT 10`;
+    } else {
+        sql = `SELECT id, ani_name, ani_img, ani_score, ani_views, ani_type FROM anime ORDER BY ani_score DESC, ani_views DESC LIMIT 10`;
+    }
     db.query(sql, (err, results) => {
         if (err) {
             console.error(err);
@@ -532,19 +552,38 @@ app.post('/anime/:id/add-to-favorite', (req, res) => {
     const userId = getUserIdFromToken(token);
 
     if (userId) {
-        const sql = 'INSERT INTO user_anime_favorite (user_id, ani_id) VALUES (?, ?)';
-        db.query(sql, [userId, id], (err, result) => {
+        const checksql = `SELECT * FROM user_anime_favorite WHERE user_id = ? AND ani_id = ?`;
+        db.get(checksql, [userId, id], (err, row) => {
             if (err) {
-                console.error('Error adding to favorite:', err);
+                console.error('Error fetch favorite:', err);
                 res.status(500).json({ error: 'Internal server error' });
             } else {
-                res.status(200).json({ message: 'Anime added to favorites successfully' });
+                console.log(row);
+                console.table(row);
+                // Kiểm tra xem anime đã tồn tại trong danh sách yêu thích hay chưa
+                if (row && row.length > 0) {
+                    // Nếu anime đã tồn tại, trả về thông báo tương ứng
+                    res.status(409).json({ message: 'Anime already exists in favorites' });
+                    console.table(row);
+                } else {
+                    // Nếu anime chưa tồn tại, thêm nó vào danh sách
+                    const sql = 'INSERT INTO user_anime_favorite (user_id, ani_id) VALUES (?, ?)';
+                    db.query(sql, [userId, id], (err, result) => {
+                        if (err) {
+                            console.error('Error adding to favorite:', err);
+                            res.status(500).json({ error: 'Internal server error' });
+                        } else {
+                            res.status(200).json({ message: 'Anime added to favorites successfully' });
+                        }
+                    });
+                }
             }
         });
     } else {
         res.status(401).json({ error: 'Invalid or expired token' });
     }
 });
+
 
 // Endpoint for removing anime from favorite list
 app.post('/anime/:id/remove-from-favorite', (req, res) => {
@@ -574,19 +613,35 @@ app.post('/anime/:id/add-to-whitelist', (req, res) => {
     const userId = getUserIdFromToken(token);
 
     if (userId) {
-        const sql = 'INSERT INTO user_anime_wishlist (user_id, ani_id) VALUES (?, ?)';
-        db.query(sql, [userId, id], (err, result) => {
+        const checksql = `SELECT * FROM user_anime_wishlist WHERE user_id = ? AND ani_id = ?`;
+        db.get(checksql, [userId, id], (err, row) => {
             if (err) {
-                console.error('Error adding to Wishlist:', err);
+                console.error('Error fetch wishlist:', err);
                 res.status(500).json({ error: 'Internal server error' });
             } else {
-                res.status(200).json({ message: 'Anime added to Wishlist successfully' });
+                // Kiểm tra xem anime đã tồn tại trong danh sách mong muốn hay chưa
+                if (row && row.length > 0) {
+                    // Nếu anime đã tồn tại, trả về thông báo tương ứng
+                    res.status(409).json({ message: 'Anime already exists in wishlist' });
+                } else {
+                    // Nếu anime chưa tồn tại, thêm nó vào danh sách
+                    const sql = 'INSERT INTO user_anime_wishlist (user_id, ani_id) VALUES (?, ?)';
+                    db.query(sql, [userId, id], (err, result) => {
+                        if (err) {
+                            console.error('Error adding to wishlist:', err);
+                            res.status(500).json({ error: 'Internal server error' });
+                        } else {
+                            res.status(200).json({ message: 'Anime added to wishlist successfully' });
+                        }
+                    });
+                }
             }
         });
     } else {
         res.status(401).json({ error: 'Invalid or expired token' });
     }
 });
+
 
 // Endpoint for removing anime from whitelist
 app.post('/anime/:id/remove-from-whitelist', (req, res) => {
@@ -660,7 +715,141 @@ app.get('/wishlist', (req, res) => {
     }
 });
 
+app.get('/anime/:AnimeId/whitelist-status', async (req, res) => {
+    const token = req.headers.authorization.split(' ')[1];
+    const userId = getUserIdFromToken(token);
+    const animeId = req.params.AnimeId;
 
+    if (!userId) {
+        return res.status(401).json({ error: 'Invalid or expired token' });
+    }
+
+    try {
+        const checksql = `SELECT * FROM user_anime_wishlist WHERE user_id = ? AND ani_id = ?`;
+        db.query(checksql, [userId, animeId], (err, results) => {
+            if (err) {
+                console.error('Error fetching Wishlist:', err);
+                res.status(500).json({ error: 'Internal server error' });
+            } else {
+                res.status(200).json({ message: 'Fetch Wishlist successfully', results });
+            }
+        });
+    } catch (error) {
+        console.error('Error Wishlist anime:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.get('/anime/:AnimeId/favorite-status', async (req, res) => {
+    const token = req.headers.authorization.split(' ')[1];
+    const userId = getUserIdFromToken(token);
+    const animeId = req.params.AnimeId;
+
+    if (!userId) {
+        return res.status(401).json({ error: 'Invalid or expired token' });
+    }
+    try {
+        const checksql = `SELECT * FROM user_anime_favorite WHERE user_id = ? AND ani_id = ?`;
+        db.query(checksql, [userId, animeId], (err, results) => {
+            if (err) {
+                console.error('Error fetching favorite:', err);
+                res.status(500).json({ error: 'Internal server error' });
+            } else {
+                res.status(200).json({ message: 'Fetch Favorite successfully', results });
+            }
+        });
+    } catch (error) {
+        console.error('Error Favorite anime:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.post('/anime/:AnimeId/rate', async (req, res) => {
+    const token = req.headers.authorization.split(' ')[1];
+    const userId = getUserIdFromToken(token);
+    const animeId = req.params.AnimeId;
+    const rating = req.body.rating;
+
+    if (!userId) {
+        return res.status(401).json({ error: 'Invalid or expired token' });
+    }
+
+    try {
+        // Check if the user has already rated the anime
+        const checksql = `SELECT * FROM anime_score WHERE user_id = ? AND ani_id = ?`;
+        db.query(checksql, [userId, animeId], (err, results) => {
+            if (err) {
+                console.error('Error fetching anime score:', err);
+                res.status(500).json({ error: 'Internal server error' });
+            } else {
+                if (results && results.length > 0) {
+                    // The user has already rated this anime, so update their score instead of adding it
+                    const updatesql = `UPDATE anime_score SET ani_score = ? WHERE user_id = ? AND ani_id = ?`;
+                    db.query(updatesql, [rating, userId, animeId], (err, updateResult) => {
+                        if (err) {
+                            console.error('Error updating anime score:', err);
+                            res.status(500).json({ error: 'Internal server error' });
+                        } else {
+                            // Calculate the new average rating for the anime
+                            const averageRatingSql = `SELECT AVG(ani_score) AS averageRating FROM anime_score WHERE ani_id = ?`;
+                            db.query(averageRatingSql, [animeId], (err, averageRatingResult) => {
+                                if (err) {
+                                    console.error('Error calculating average anime score:', err);
+                                    res.status(500).json({ error: 'Internal server error' });
+                                } else {
+                                    const averageRating = averageRatingResult[0].averageRating || 0;
+                                    // Update the anime's score in the anime table with the new average rating
+                                    const updateAnimeSql = `UPDATE anime SET ani_score = ? WHERE id = ?`;
+                                    db.query(updateAnimeSql, [averageRating, animeId], (err, updateAnimeResult) => {
+                                        if (err) {
+                                            console.error('Error updating anime score in anime table:', err);
+                                            res.status(500).json({ error: 'Internal server error' });
+                                        } else {
+                                            res.status(200).json({ message: 'Rating updated successfully', averageRating });
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    // The user hasn't rated this anime yet, so insert their new rating
+                    const insertsql = `INSERT INTO anime_score (user_id, ani_id, ani_score) VALUES (?, ?, ?)`;
+                    db.query(insertsql, [userId, animeId, rating], (err, insertResult) => {
+                        if (err) {
+                            console.error('Error inserting anime score:', err);
+                            res.status(500).json({ error: 'Internal server error' });
+                        } else {
+                            // Calculate the new average rating for the anime
+                            const averageRatingSql = `SELECT AVG(ani_score) AS averageRating FROM anime_score WHERE ani_id = ?`;
+                            db.query(averageRatingSql, [animeId], (err, averageRatingResult) => {
+                                if (err) {
+                                    console.error('Error calculating average anime score:', err);
+                                    res.status(500).json({ error: 'Internal server error' });
+                                } else {
+                                    const averageRating = averageRatingResult[0].averageRating || 0;
+                                    // Update the anime's score in the anime table with the new average rating
+                                    const updateAnimeSql = `UPDATE anime SET ani_score = ? WHERE id = ?`;
+                                    db.query(updateAnimeSql, [averageRating, animeId], (err, updateAnimeResult) => {
+                                        if (err) {
+                                            console.error('Error updating anime score in anime table:', err);
+                                            res.status(500).json({ error: 'Internal server error' });
+                                        } else {
+                                            res.status(200).json({ message: 'Rating updated successfully', averageRating });
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Error rating anime:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

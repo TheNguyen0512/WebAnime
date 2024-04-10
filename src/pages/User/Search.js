@@ -4,6 +4,8 @@ import { useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faBookmark } from '@fortawesome/free-regular-svg-icons';
 import { Link } from 'react-router-dom';
+import Header from '../../components/common/header';
+import Footer from '../../components/common/footer';
 
 const Search = () => {
     const { searchQuery } = useParams();
@@ -47,41 +49,45 @@ const Search = () => {
     };
 
     return (
-        <main>
-            <article>
-                <section className="top-rated">
-                    <div className="container">
-                        <h2 className="h2 section-title">Search Results</h2>
-                        {animeBySearch.length === 0 ? (
-                            <div className='movie-card'>
-                                <h3>No anime found</h3>
-                            </div>
-                        ) : (
-                            <ul className="movies-list">
-                                {animeBySearch.map(anime => (
-                                    <li key={anime.id}>
-                                        <div className='movie-card'>
-                                            <figure className='card-banner'>
-                                                <img src={anime.imageUrl} alt={anime.ani_name} />
-                                                <div className="icons">
-                                                    <FontAwesomeIcon icon={faHeart} className="favorite-icon" style={{ color: liked[anime.id] ? 'red' : 'white', fontSize: '24px' }} onClick={() => toggleLike(anime.id)} />
-                                                    <FontAwesomeIcon icon={faBookmark} className="whitelist-icon" style={{ color: bookmarked[anime.id] ? 'blue' : 'white', fontSize: '24px' }} onClick={() => toggleBookmark(anime.id)} />
+        <div>
+            <Header />
+            <main>
+                <article>
+                    <section className="top-rated">
+                        <div className="container">
+                            <h2 className="h2 section-title">Search Results</h2>
+                            {animeBySearch.length === 0 ? (
+                                <div className='movie-card'>
+                                    <h3>No anime found</h3>
+                                </div>
+                            ) : (
+                                <ul className="movies-list">
+                                    {animeBySearch.map(anime => (
+                                        <li key={anime.id}>
+                                            <div className='movie-card'>
+                                                <figure className='card-banner'>
+                                                    <img src={anime.imageUrl} alt={anime.ani_name} />
+                                                    <div className="icons">
+                                                        <FontAwesomeIcon icon={faHeart} className="favorite-icon" style={{ color: liked[anime.id] ? 'red' : 'white', fontSize: '24px' }} onClick={() => toggleLike(anime.id)} />
+                                                        <FontAwesomeIcon icon={faBookmark} className="whitelist-icon" style={{ color: bookmarked[anime.id] ? 'blue' : 'white', fontSize: '24px' }} onClick={() => toggleBookmark(anime.id)} />
+                                                    </div>
+                                                </figure>
+                                                <div className='title-wrapper'>
+                                                    <Link to={`/anime/${anime.id}`}>
+                                                        <h3>{anime.ani_name}</h3>
+                                                    </Link>
                                                 </div>
-                                            </figure>
-                                            <div className='title-wrapper'>
-                                                <Link to={`/anime/${anime.id}`}>
-                                                    <h3>{anime.ani_name}</h3>
-                                                </Link>
                                             </div>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
-                </section>
-            </article>
-        </main>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    </section>
+                </article>
+            </main>
+            <Footer />
+        </div>
 
     );
 };

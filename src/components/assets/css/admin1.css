@@ -1,0 +1,263 @@
+/* Header styles */
+.header1 {
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  background-color: #3171d7;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header1-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+}
+
+.search-box {
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 0.5rem;
+}
+
+.search-box input[type="text"] {
+  padding-left: 2rem;
+  padding-right: 3rem;
+}
+
+.dropdown-wrapper {
+  position: relative;
+}
+
+.dropdown-wrapper button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  display: none;
+  min-width: 10rem;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  background-color: #fff;
+}
+
+.dropdown-menu.show {
+  display: block;
+}
+
+
+/* Sidebar styles */
+.sidebar {
+  position: fixed;
+  top: 4rem;
+  left: 0;
+  bottom: 0;
+  width: 20rem;
+  background-color: #fdfdfd;
+}
+
+.sidebar-content {
+  height: 100%;
+  padding-top: 1rem;
+}
+
+.sidebar-content.active {
+  transform: translateX(0);
+}
+
+.sidebar-content button {
+  border: 1px solid #ccc;
+  margin-top: 10px;
+  border-radius: 4px;
+  padding: 8px 12px;
+  background-color: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: auto;
+}
+
+.sidebar-content button:hover {
+  background-color: #f0f0f0;
+}
+
+.sidebar-content nav ul {
+  list-style: none;
+  padding: 0;
+}
+
+
+nav ul {
+  list-style: none;
+  padding: 0;
+}
+
+.nav-item {
+  padding: 1rem;
+}
+
+.sidebar-content button {
+  border: 1px solid #ccc;
+  margin-top: 10px;
+  border-radius: 4px;
+  padding: 8px 12px;
+  background-color: transparent;
+  cursor: pointer;
+  display: block;
+  width: 80%;
+  /* Thiết lập chiều rộng của nút là 80% chiều rộng của Sidebar */
+  text-align: start;
+  /* Canh giữa cho nội dung của nút */
+  margin-left: 15px;
+  /* Căn trái của nút */
+  margin-right: auto;
+  /* Căn phải của nút */
+}
+
+
+.sidebar-button:hover {
+  background-color: #f0f0f0;
+}
+
+.sidebar-button svg {
+  margin-right: 0.5rem;
+}
+
+.nav-item button:hover {
+  background-color: #f0f0f0;
+}
+
+.sidebar-content.active {
+  transform: translateX(0);
+  margin-right: 20rem;
+  /* Đảm bảo nội dung không bị che bởi sidebar khi hiển thị */
+}
+
+.setActiveTab {
+  position: absolute;
+  top: 4rem;
+  /* Đặt top bằng chiều cao của header */
+  right: 0;
+  bottom: 0;
+  width: calc(100vw - 20rem);
+  /* Trừ đi chiều rộng của sidebar */
+  background-color: #daffeb;
+  /* Đặt màu nền là màu trắng */
+  padding: 1rem;
+  overflow-y: auto;
+  transition: transform 0.3s ease;
+}
+
+.setActiveTab.active {
+  transform: translateX(0);
+}
+
+/* Admin.css */
+
+.anime-details {
+  width: calc(100% - 40px);
+  /* Đảm bảo rằng chiều rộng của chi tiết anime không bị tràn ra khỏi container */
+  margin: 0 auto 20px;
+  /* Canh giữa và thêm khoảng cách dưới */
+  padding: 20px;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.anime-details>div {
+  margin-bottom: 10px;
+}
+
+.anime-details h4 {
+  margin-bottom: 5px;
+}
+
+.anime-details img {
+  width: 100%;
+  border-radius: 5px;
+}
+
+.edit-button-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.edit-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.edit-button:hover {
+  background-color: #0056b3;
+}
+
+.anime-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.anime-info h4 {
+  margin-right: 10px;
+}
+
+.anime-info input {
+  flex: 1;
+}
+
+.anime-image {
+  max-width: 200px;
+  height: auto;
+}
+
+.anime-info-video {
+  margin-top: 20px;
+}
+
+.anime-info-video h4 {
+  margin-bottom: 10px;
+}
+
+.anime-info-video input {
+  text-overflow: clip;
+  width: 100%;
+  white-space: pre-line;
+}
+.genre-container {
+  display: flex;
+  align-items: center;
+  width: auto;
+  /* Căn giữa các phần tử trên cùng một hàng */
+}
+
+.genre-container h3 {
+  margin-right: 10px; /* Khoảng cách giữa tiêu đề và combobox */
+}
+
+.genre-container select {
+  background-color: #ffffff; /* Thiết lập màu nền cho combobox thành màu trắng */
+  color: #000000; /* Thiết lập màu chữ cho combobox thành màu đen */
+  padding: 8px; /* Tăng padding để làm cho combobox lớn hơn */
+  font-size: 16px; /* Thiết lập kích thước font chữ */
+  width: 100%; /* Thiết lập chiều rộng của combobox */
+  border: 10px;
+}
+

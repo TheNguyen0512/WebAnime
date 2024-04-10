@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import YouTube from 'react-youtube';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar } from '@fortawesome/free-solid-svg-icons';
+import { faStar, faHeart, faBookmark, faEye } from '@fortawesome/free-solid-svg-icons';
 import swal from 'sweetalert';
+import Header from '../../components/common/header';
+import Footer from '../../components/common/footer';
+
 
 const AnimeVideo = () => {
     const { AnimeId } = useParams();
@@ -15,14 +18,13 @@ const AnimeVideo = () => {
     const [selectedVideoIndex, setSelectedVideoIndex] = useState(0);
     const [viewCount, setViewCount] = useState(0);
     const [watchTime, setWatchTime] = useState(0);
-    const [userName, setUserName] = useState('');
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [guestCounter, setGuestCounter] = useState(0);
+
     const [feedbackData, setFeedbackData] = useState([]);
     const [displayedFeedback, setDisplayedFeedback] = useState([]);
     const [isFavorite, setIsFavorite] = useState(false);
     const [isWhitelisted, setIsWhitelisted] = useState(false);
-
+    const [hoverRating, setHoverRating] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         axios.get(`http://localhost:3030/anime/${AnimeId}`)
@@ -56,17 +58,12 @@ const AnimeVideo = () => {
             });
     }, [AnimeId]);
 
+
     useEffect(() => {
         setDisplayedFeedback(feedbackData.slice(0, 5));
     }, [feedbackData]);
 
 
-    useEffect(() => {
-        if (animeData) {
-            const videoLinks = animeData.video_url.split(',').map(link => link.trim());
-            setSelectedVideos(videoLinks);
-        }
-    }, [animeData]);
 
     const extractVideoId = (url) => {
         if (!url) return null;
@@ -74,19 +71,83 @@ const AnimeVideo = () => {
         return match ? match[1] : null;
     };
 
-    const handleVideoButtonClick = (index) => {
-        setSelectedVideoIndex(index);
-        setWatchTime(0);
-    };
+    useEffect(() => {
+        if (animeData) {
+            const videoLinks = animeData.video_url.split(',').map(link => link.trim());
+            let trailers = [];
+            let episodes = [];
+
+            videoLinks.forEach((link, index) => {
+                if (animeData.ani_type === 'TV' && index === 0) {
+                    trailers.push(link);
+                } else if (animeData.ani_type === 'Movie' && index === 0) {
+                    trailers.push(link);
+                } else {
+                    episodes.push(link);
+                }
+            });
+
+            const updatedSelectedVideos = [...trailers, ...episodes];
+            setSelectedVideos(updatedSelectedVideos);
+
+            // Check if there is a stored selected video index in localStorage
+            const storedSelectedVideoIndex = localStorage.getItem(`selectedVideoIndex_${AnimeId}`);
+            if (storedSelectedVideoIndex !== null) {
+                setSelectedVideoIndex(parseInt(storedSelectedVideoIndex));
+            }
+        }
+    }, [animeData, AnimeId]);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            setIsLoggedIn(true);
-            const storedUserName = localStorage.getItem('userName');
-            setUserName(storedUserName);
-        }
+        setSelectedVideoIndex(0);
     }, []);
+
+    const handleVideoButtonClick = (index) => {
+        setSelectedVideoIndex(index);
+        let url;
+        if (animeData.ani_type === 'TV' && index === 0) {
+            url = `/anime/${AnimeId}/trailer`;
+        } else if (animeData.ani_type === 'Movies' && index === 0) {
+            url = `/anime/${AnimeId}/trailer`;
+        } else if (animeData.ani_type === 'Movies' && index === 1) {
+            url = `/anime/${AnimeId}/movie`;
+        } else {
+            url = `/anime/${AnimeId}/episode-${index}`;
+        }
+        // Lưu trạng thái trang hiện tại
+        const currentState = {
+            selectedVideoIndex: selectedVideoIndex,
+            url: window.location.href
+        };
+        window.history.pushState(currentState, "", currentState.url);
+        // Điều hướng đến URL mới
+        navigate(url);
+        setWatchTime(0);
+        // Store the selected episode index in localStorage
+        localStorage.setItem(`selectedVideoIndex_${AnimeId}`, index);
+    };
+
+    // Thêm sự kiện lắng nghe cho sự kiện popstate của window
+    useEffect(() => {
+        const handlePopState = (event) => {
+            const currentState = event.state;
+            if (currentState && currentState.hasOwnProperty('selectedVideoIndex')) {
+                setSelectedVideoIndex(currentState.selectedVideoIndex);
+            } else {
+                // If there's no selectedVideoIndex in the state, try to fetch it from localStorage
+                const storedSelectedVideoIndex = localStorage.getItem(`selectedVideoIndex_${AnimeId}`);
+                if (storedSelectedVideoIndex !== null) {
+                    setSelectedVideoIndex(parseInt(storedSelectedVideoIndex));
+                }
+            }
+        };
+
+        window.addEventListener('popstate', handlePopState);
+
+        return () => {
+            window.removeEventListener('popstate', handlePopState);
+        };
+    }, [AnimeId]); // Add AnimeId to the dependencies array
 
     const incrementViewCount = () => {
         setViewCount(prevCount => prevCount + 1);
@@ -101,28 +162,28 @@ const AnimeVideo = () => {
     };
 
     useEffect(() => {
-        // Thiết lập một interval để theo dõi thời gian xem của video
         const interval = setInterval(() => {
-            setWatchTime(prevWatchTime => prevWatchTime + 1); // Tăng thời gian xem lên mỗi giây
+            setWatchTime(prevWatchTime => prevWatchTime + 1);
         }, 1000);
 
-        // Kiểm tra nếu thời gian xem đã đạt đến 30 giây, thì tăng số lượt xem và cập nhật nó trong cơ sở dữ liệu
         if (watchTime === 30) {
             incrementViewCount();
         }
 
-        // Xóa interval khi component unmount hoặc khi người dùng chuyển sang video mới
         return () => clearInterval(interval);
     }, [watchTime, selectedVideoIndex]);
 
+
+
     const submitFeedback = (feedback) => {
-        const currentUserName = userName || `Guest ${guestCounter + 1}`;
-        axios.post(`http://localhost:3030/anime/${AnimeId}/feedback`, { feedback, userName: currentUserName })
+        const token = localStorage.getItem('token');
+        axios.post(`http://localhost:3030/anime/${AnimeId}/feedback`, { feedback }, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
             .then(response => {
                 console.log('Feedback submitted successfully:', response.data);
-                if (!userName) {
-                    setGuestCounter(prevCounter => prevCounter + 1);
-                }
                 // Update both feedbackData and displayedFeedback to include all feedback items
                 axios.get(`http://localhost:3030/anime/${AnimeId}/feedback`)
                     .then(response => {
@@ -136,9 +197,10 @@ const AnimeVideo = () => {
                     });
             })
             .catch(error => {
-                console.error('Error submitting feedback:', error);
+                console.error('Error submitting feedback:', error.response.data.error);
             });
     };
+
 
     const loadMoreFeedback = () => {
         const currentLength = displayedFeedback.length;
@@ -168,31 +230,6 @@ const AnimeVideo = () => {
         }
     };
 
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            axios.get(`http://localhost:3030/anime/${AnimeId}/favorite-status`)
-                .then(response => {
-                    if (response.data.isFavorite) {
-                        setIsFavorite(true);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error checking favorite status:', error);
-                });
-
-            axios.get(`http://localhost:3030/anime/${AnimeId}/whitelist-status`)
-                .then(response => {
-                    if (response.data.isWhitelisted) {
-                        setIsWhitelisted(true);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error checking whitelist status:', error);
-                });
-        }
-    }, [AnimeId]);
-
     const toggleFavorite = () => {
         if (isFavorite) {
             removeFromFavorite();
@@ -208,6 +245,36 @@ const AnimeVideo = () => {
             addToWhitelist();
         }
     };
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            axios.get(`http://localhost:3030/anime/${AnimeId}/favorite-status`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+                .then(response => {
+                    setIsFavorite(response.data.results.length > 0); // Set isFavorite based on the response
+                })
+                .catch(error => {
+                    console.error('Error checking favorite status:', error);
+                });
+
+            axios.get(`http://localhost:3030/anime/${AnimeId}/whitelist-status`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+                .then(response => {
+                    setIsWhitelisted(response.data.results.length > 0); // Set isWhitelisted based on the response
+                })
+                .catch(error => {
+                    console.error('Error checking whitelist status:', error);
+                });
+        }
+    }, [AnimeId]);
+
 
     const addToFavorite = () => {
         const token = localStorage.getItem('token');
@@ -229,7 +296,7 @@ const AnimeVideo = () => {
                     console.error('Error adding to favorite:', error);
                     swal({
                         title: 'Added to favorites!',
-                        text: 'Error adding to favorites',
+                        text: 'Anime already exists in favorites',
                         icon: "error",
                     })
                 });
@@ -287,7 +354,7 @@ const AnimeVideo = () => {
                     console.error('Error adding to whitelist:', error);
                     swal({
                         title: 'Added to wishlist',
-                        text: 'Error adding to whitelist',
+                        text: 'Anime already exists in Wishlist',
                         icon: "error",
                     })
                 });
@@ -325,6 +392,83 @@ const AnimeVideo = () => {
         }
     };
 
+    // Updated handleMouseEnter function to handle star hover effect
+    const handleMouseEnter = (ratingValue) => {
+        setHoverRating(ratingValue); // Update hoverRating state
+
+        // Change color and size of stars based on hoverRating
+        const stars = document.querySelectorAll('.star');
+        stars.forEach((star, index) => {
+            const rating = index + 1;
+            if (rating <= ratingValue) {
+                star.style.color = "gold";
+            } else {
+                star.style.color = "gray";
+            }
+        });
+    };
+
+    // Updated handleMouseLeave function to reset star styles when mouse leaves
+    const handleMouseLeave = () => {
+        setHoverRating(null); // Reset hoverRating state
+
+        // Reset star styles to reflect anime score
+        const stars = document.querySelectorAll('.star');
+        stars.forEach((star, index) => {
+            star.style.color = index < animeData.ani_score ? "gold" : "gray";
+        });
+    };
+
+    // Updated handleRatingClick function to submit user rating
+    const handleRatingClick = async (rating, AnimeId) => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            swal({
+                title: 'Login Required!',
+                text: 'Need to log in to rate points',
+                icon: "error",
+            }).then(() => {
+                localStorage.setItem('previousPath', `/anime/${AnimeId}`);
+                navigate('/login');
+            });
+            console.error('Token not found in localStorage');
+            return;
+        }
+
+        try {
+            const response = await axios.post(
+                `http://localhost:3030/anime/${AnimeId}/rate`,
+                { rating: rating },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (response.status === 200) {
+                console.log('Rating updated successfully');
+                // Optionally, you can update the state to reflect the new rating
+                setAnimeData(prevAnimeData => ({ ...prevAnimeData, ani_score: rating }));
+                swal({
+                    title: 'Score!',
+                    text: 'Score successfully',
+                    icon: "success",
+                });
+            } else {
+                console.error('Failed to update rating');
+            }
+        } catch (error) {
+            console.error('Error handling rating click:', error);
+            // Handle errors appropriately, such as showing an error message to the user
+            swal({
+                title: 'Error!',
+                text: 'Failed to update rating',
+                icon: "error",
+            });
+        }
+    };
+
     if (loading) {
         return <div>Loading...</div>;
     }
@@ -338,114 +482,164 @@ const AnimeVideo = () => {
     }
 
     return (
-        <main>
-            <article>
-                <section className="top-rated">
-                    <div className="container">
-                        <div className='container video-tab'>
-                            <div className="anime-title">
-                                <h2>{animeData.ani_name}</h2>
-                            </div>
-                            <div className='youtube-videos'>
-                                <div className='youtube-video'>
-                                    <YouTube key={selectedVideoIndex} videoId={extractVideoId(selectedVideos[selectedVideoIndex])} />
+        <div>
+            <Header />
+            <main>
+                <article>
+                    <section className="top-rated">
+                        <div className="container">
+                            <div className='container video-tab'>
+                                <div className="anime-title">
+                                    <h2>{animeData.ani_name}</h2>
                                 </div>
-                            </div>
-                            <div className='container episode'>
-                                <div className='text'>
-                                    <p>View: {animeData.ani_views}</p>
+                                <div className='youtube-videos'>
+                                    <div className='youtube-video'>
+                                        <YouTube key={selectedVideoIndex} videoId={extractVideoId(selectedVideos[selectedVideoIndex])} />
+                                    </div>
                                 </div>
-                                <div className="video-links">
-                                    <h3>Episodes:</h3>
-                                    {selectedVideos.map((videoUrl, index) => (
-                                        <button key={index} onClick={() => handleVideoButtonClick(index)}>Episode {index}</button>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                        <div className='container overview'>
-                            <div className='movie-info'>
-                                <div className='image'>
-                                    <figure className='card-info'>
-                                        <img src={animeData.imageUrl} alt={animeData.ani_name} />
-                                    </figure>
-                                    <div className="button-wrapper">
-                                        <button className="favorite-button" onClick={toggleFavorite}>{isFavorite ? 'Remove from Favorite' : 'Add to Favorite'}</button>
-                                        <button className="whitelist-button" onClick={toggleWhitelist}>{isWhitelisted ? 'Remove from Whitelist' : 'Add to Whitelist'}</button>
+                                <div className='container episode'>
+                                    <div className='text'>
+                                        <FontAwesomeIcon icon={faEye} style={{ color: "white" }} /> {animeData.ani_views}
+                                    </div>
+                                    <div className="video-links">
+                                        <h3>Episodes:</h3>
+                                        {selectedVideos.map((videoUrl, index) => (
+                                            <button key={index} onClick={() => handleVideoButtonClick(index)}>
+                                                {animeData.ani_type === 'TV' && index === 0 ? 'Trailer' : ''}
+                                                {animeData.ani_type === 'Movies' && index === 0 ? 'Trailer' : ''}
+                                                {animeData.ani_type === 'Movies' && index === 1 ? 'Movie' : ''}
+                                                {animeData.ani_type === 'TV' && index > 0 ? `Episode ${index}` : ''}
+                                                {animeData.ani_type === 'Movies' && index > 1 ? `Episode ${index}` : ''}
+                                            </button>
+                                        ))}
 
                                     </div>
                                 </div>
-                                <div className='text'>
-                                    <div className='info-name-wrapper'>
-                                        <h3>{animeData.ani_name}</h3>
-                                    </div>
-                                    <div className='info-overview-wrapper'>
-                                        <FontAwesomeIcon icon={faStar} /> {animeData.ani_score}
-                                    </div>
-                                    <div className='info-overview-wrapper'>
-                                        <h3>Overview:</h3>
-                                        <h3>{animeData.ani_overview}</h3>
-                                    </div>
-                                    <div className='info-overview-wrapper'>
-                                        <h3>Director: {animeData.ani_director}</h3>
-                                    </div>
-                                    <div className='info-overview-wrapper'>
-                                        <h3>Episodes: {selectedVideos.length - 1}/{animeData.ani_episodes}</h3>
-                                    </div>
-                                    <div className='info-overview-wrapper'>
-                                        <h3>Type: {animeData.ani_type}</h3>
-                                    </div>
-                                    <div className='info-overview-wrapper'>
-                                        <h3>Rating: {animeData.ani_rating}</h3>
-                                    </div>
-                                    <div className='info-overview-wrapper'>
-                                        <h3>Season: {animeData.ani_season}</h3>
-                                    </div>
-                                    <div className='info-overview-wrapper'>
-                                        <h3>Studio: {animeData.ani_studio}</h3>
-                                    </div>
-                                </div>
                             </div>
-                        </div>
-                        <div className='container comment-tab'>
-                            <div className='add-comment-section'>
-                                <h4>Comments:</h4>
-                                <form onSubmit={(e) => {
-                                    e.preventDefault();
-                                    const feedback = e.target.elements.feedback.value;
-                                    submitFeedback(feedback);
-                                    e.target.elements.feedback.value = '';
-                                }}>
-                                    <textarea name="feedback" placeholder="Enter your feedback"></textarea>
-                                    <button type="submit">Submit</button>
-                                </form>
-                                <div className='comment-section'>
-                                    <h4>Comments History:</h4>
-                                    {displayedFeedback.length === 0 ? (
-                                        <div className="feedback-item">
-                                            <p>No comments available</p>
+                            <div className='container overview'>
+                                <div className='movie-info'>
+                                    <div className='image'>
+                                        <figure className='card-info' style={{ width: '300px' }}>
+                                            <img src={animeData.imageUrl} alt={animeData.ani_name} />
+                                        </figure>
+                                        <div className="button-wrapper">
+                                            <FontAwesomeIcon
+                                                icon={faHeart}
+                                                className="favorite-button"
+                                                onClick={toggleFavorite}
+                                                style={{
+                                                    color: isFavorite ? 'red' : 'white',
+                                                    cursor: 'pointer',
+                                                    fontSize: '24px',
+                                                    marginRight: '10px'
+                                                }}
+                                            />
+                                            <FontAwesomeIcon
+                                                icon={faBookmark}
+                                                className="whitelist-button"
+                                                onClick={toggleWhitelist}
+                                                style={{
+                                                    color: isWhitelisted ? 'blue' : 'white',
+                                                    cursor: 'pointer',
+                                                    fontSize: '24px'
+                                                }}
+                                            />
                                         </div>
-                                    ) : (
-                                        displayedFeedback.map((feedbackItem, index) => (
-                                            <div key={index} className="feedback-item">
-                                                <span>{feedbackItem.user_name}</span>
-                                                <p>{feedbackItem.command}</p>
-                                                <p>{formatTimeDifference(feedbackItem.create_At)}</p>
+                                    </div>
+                                    <div className='text'>
+                                        <div className='info-name-wrapper'>
+                                            <h3>{animeData.ani_name}</h3>
+                                        </div>
+                                        <div className='info-overview-wrapper'>
+                                            <h3>Score: {animeData.ani_score.toFixed(1)}</h3>
+                                            <div className="star-rating">
+                                                {[...Array(10)].map((star, index) => {
+                                                    const ratingValue = index + 1;
+                                                    return (
+                                                        <FontAwesomeIcon
+                                                            key={index}
+                                                            icon={faStar}
+                                                            className="star"
+                                                            style={{
+                                                                color: (hoverRating || animeData.ani_score) >= ratingValue ? "gold" : "gray", // Change color to gold if the rating value is less than or equal to the hoverRating or anime score
+                                                                cursor: "pointer",
+                                                                fontSize: "24px",
+                                                                transition: "color 0.25s, font-size 0.25s",
+                                                            }}
+                                                            onMouseEnter={() => handleMouseEnter(ratingValue)}
+                                                            onMouseLeave={() => handleMouseLeave()}
+                                                            onClick={() => handleRatingClick(ratingValue, AnimeId)} // Pass userId and AnimeId to handleRatingClick function
+                                                        />
+                                                    );
+                                                })}
                                             </div>
-                                        ))
-                                    )}
-                                    {feedbackData.length > displayedFeedback.length && (
-                                        <button className="load-more-button" onClick={loadMoreFeedback}>Load More</button>
-                                    )}
-                                </div>
 
+                                        </div>
+                                        <div className='info-overview-wrapper'>
+                                            <h3>Overview:</h3>
+                                            <h3>{animeData.ani_overview}</h3>
+                                        </div>
+                                        <div className='info-overview-wrapper'>
+                                            <h3>Director: {animeData.ani_director}</h3>
+                                        </div>
+                                        <div className='info-overview-wrapper'>
+                                            <h3>Episodes: {selectedVideos.length - 1}/{animeData.ani_episodes}</h3>
+                                        </div>
+                                        <div className='info-overview-wrapper'>
+                                            <h3>Type: {animeData.ani_type}</h3>
+                                        </div>
+                                        <div className='info-overview-wrapper'>
+                                            <h3>Rating: {animeData.ani_rating}</h3>
+                                        </div>
+                                        <div className='info-overview-wrapper'>
+                                            <h3>Season: {animeData.ani_season}</h3>
+                                        </div>
+                                        <div className='info-overview-wrapper'>
+                                            <h3>Studio: {animeData.ani_studio}</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='container comment-tab'>
+                                <div className='add-comment'>
+                                    <h4>Comments:</h4>
+                                    <form onSubmit={(e) => {
+                                        e.preventDefault();
+                                        const feedback = e.target.elements.feedback.value;
+                                        submitFeedback(feedback);
+                                        e.target.elements.feedback.value = '';
+                                    }}>
+                                        <textarea name="feedback" placeholder="Enter your feedback"></textarea>
+                                        <button type="submit">Submit</button>
+                                    </form>
+                                    <div className='comment-section'>
+                                        <h4>Comments History:</h4>
+                                        {displayedFeedback.length === 0 ? (
+                                            <div className="feedback-item">
+                                                <p>No comments available</p>
+                                            </div>
+                                        ) : (
+                                            displayedFeedback.map((feedbackItem, index) => (
+                                                <div key={index} className="feedback-item">
+                                                    <span>{feedbackItem.name}</span>
+                                                    <p>{feedbackItem.command}</p>
+                                                    <p>{formatTimeDifference(feedbackItem.create_At)}</p>
+                                                </div>
+                                            ))
+                                        )}
+                                        {feedbackData.length > displayedFeedback.length && (
+                                            <button className="load-more-button" onClick={loadMoreFeedback}>Load More</button>
+                                        )}
+
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
-                    </div>
-                </section>
-            </article>
-        </main>
+                    </section>
+                </article>
+            </main>
+            <Footer />
+        </div>
     );
 };
 

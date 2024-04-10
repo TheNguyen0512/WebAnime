@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import swal from 'sweetalert';
+import HeaderAdmin from '../../components/common/headerAdmin';
+import Sidebar from '../../components/common/SidebarMenu';
 
 const Edit = () => {
     const { AnimeId } = useParams();
@@ -17,6 +19,9 @@ const Edit = () => {
     const [newGenres, setNewGenres] = useState('');
     const [newOverview, setNewOverview] = useState('');
     const [videoUrl, setVideoUrl] = useState('');
+    const [sidebarOpen, setSidebarOpen] = useState(false); // State to track the open/close state of Sidebar
+
+    const [activeTab, setActiveTab] = useState('movies');
 
     useEffect(() => {
         fetchAnime();
@@ -90,107 +95,129 @@ const Edit = () => {
         return <div>Loading...</div>;
     }
 
+    const toggleSidebar = () => {
+        setSidebarOpen(!sidebarOpen);
+    };
+
     return (
-        <section className="profile">
-            <h2>Edit Anime</h2>            
-            <Link to="/admin" className="back-button">Back</Link>
-            <div className='container'>
-                <div className="anime-details">
-                    <div className="anime-info">
-                        <h4>Name:</h4>
-                        <input
-                            type="text"
-                            value={newName}
-                            onChange={(e) => setNewName(e.target.value)}
-                        />
-                    </div>
-                    <div className="anime-info">
-                        <h4>Image:</h4>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                        />
-                        {anime.imageUrl && (
-                            <img src={anime.imageUrl} alt={anime.ani_name} className="anime-image" />
-                        )}
-                    </div>
-                    <div className="anime-info">
-                        <h4>Type:</h4>
-                        <input
-                            type="text"
-                            value={newType}
-                            onChange={(e) => setNewType(e.target.value)}
-                        />
-                    </div>
-                    <div className="anime-info">
-                        <h4>Director:</h4>
-                        <input
-                            type="text"
-                            value={newDirector}
-                            onChange={(e) => setNewDirector(e.target.value)}
-                        />
-                    </div>
-                    <div className="anime-info">
-                        <h4>Episodes:</h4>
-                        <input
-                            type="number"
-                            value={newEpisodes}
-                            onChange={(e) => setNewEpisodes(e.target.value)}
-                        />
-                    </div>
-                    <div className="anime-info">
-                        <h4>Rating:</h4>
-                        <input
-                            type="text"
-                            value={newRating}
-                            onChange={(e) => setNewRating(e.target.value)}
-                        />
-                    </div>
-                    <div className="anime-info">
-                        <h4>Season:</h4>
-                        <input
-                            type="text"
-                            value={newSeason}
-                            onChange={(e) => setNewSeason(e.target.value)}
-                        />
-                    </div>
-                    <div className="anime-info">
-                        <h4>Studio:</h4>
-                        <input
-                            type="text"
-                            value={newStudio}
-                            onChange={(e) => setNewStudio(e.target.value)}
-                        />
-                    </div>
-                    <div className="anime-info">
-                        <h4>Genres:</h4>
-                        <input
-                            type="text"
-                            value={newGenres}
-                            onChange={(e) => setNewGenres(e.target.value)}
-                        />
-                    </div>
-                    <div className="anime-info">
-                        <h4>Overview:</h4>
-                        <input
-                            type="text"
-                            value={newOverview}
-                            onChange={(e) => setNewOverview(e.target.value)}
-                        />
-                    </div>
-                    <div className="anime-info-video">
-                        <h4>Video URL:</h4>
-                        <input
-                            type="text"
-                            value={videoUrl}
-                            onChange={(e) => setVideoUrl(e.target.value)}
-                        />
-                    </div>
-                    <button className="edit-button" onClick={handleEditAnime}>Edit</button>
+        <div className="admin-container">
+            <HeaderAdmin toggleSidebar={toggleSidebar} />
+            <div className="sidebar-wrapper">
+                <Sidebar setActiveTab={setActiveTab} />
+                <div className={`sidebar-content ${sidebarOpen ? 'active' : ''}`}>
+                    <section className="profile">
+                        <div className="profile ">
+                            <div className="admin-navbar">
+                                <div className="nav-item-container">
+                                    <Link to="/admin" className={`nav-item ${activeTab === 'movies' ? 'active' : ''}`}>Anime List</Link>
+                                    <button className={`nav-item ${activeTab === 'addMovie' ? 'active' : ''}`} onClick={() => setActiveTab('addMovie')}>Add Anime</button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
+                <section className="setActiveTab">
+                    <Link to="/admin" className="back-button">Back</Link>
+                    <h1 style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Edit Anime</h1>
+                    <div className='container'>
+                        <div className="anime-details">
+                            <div className="anime-info">
+                                <h3>Name:</h3>
+                                <input
+                                    type="text"
+                                    value={newName}
+                                    onChange={(e) => setNewName(e.target.value)}
+                                />
+                            </div>
+                            <div className="anime-info">
+                                <h3>Image:</h3>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                />
+                                {anime.imageUrl && (
+                                    <img src={anime.imageUrl} alt={anime.ani_name} className="anime-image" />
+                                )}
+                            </div>
+                            <div className="anime-info">
+                                <h3>Type:</h3>
+                                <input
+                                    type="text"
+                                    value={newType}
+                                    onChange={(e) => setNewType(e.target.value)}
+                                />
+                            </div>
+                            <div className="anime-info">
+                                <h3>Director:</h3>
+                                <input
+                                    type="text"
+                                    value={newDirector}
+                                    onChange={(e) => setNewDirector(e.target.value)}
+                                />
+                            </div>
+                            <div className="anime-info">
+                                <h3>Episodes:</h3>
+                                <input
+                                    type="number"
+                                    value={newEpisodes}
+                                    onChange={(e) => setNewEpisodes(e.target.value)}
+                                />
+                            </div>
+                            <div className="anime-info">
+                                <h3>Rating:</h3>
+                                <input
+                                    type="text"
+                                    value={newRating}
+                                    onChange={(e) => setNewRating(e.target.value)}
+                                />
+                            </div>
+                            <div className="anime-info">
+                                <h3>Season:</h3>
+                                <input
+                                    type="text"
+                                    value={newSeason}
+                                    onChange={(e) => setNewSeason(e.target.value)}
+                                />
+                            </div>
+                            <div className="anime-info">
+                                <h3>Studio:</h3>
+                                <input
+                                    type="text"
+                                    value={newStudio}
+                                    onChange={(e) => setNewStudio(e.target.value)}
+                                />
+                            </div>
+                            <div className="anime-info">
+                                <h3>Genres:</h3>
+                                <input
+                                    type="text"
+                                    value={newGenres}
+                                    onChange={(e) => setNewGenres(e.target.value)}
+                                />
+                            </div>
+                            <div className="anime-info">
+                                <h3>Overview:</h3>
+                                <input
+                                    type="text"
+                                    value={newOverview}
+                                    onChange={(e) => setNewOverview(e.target.value)}
+                                />
+                            </div>
+                            <div className="anime-info-video">
+                                <h3>Video URL:</h3>
+                                <input
+                                    type="text"
+                                    value={videoUrl}
+                                    onChange={(e) => setVideoUrl(e.target.value)}
+                                />
+                            </div>
+                            <button className="edit-button" onClick={handleEditAnime}>Edit</button>
+                        </div>
+                    </div>
+                </section>
             </div>
-        </section>
+        </div>
     );
 };
 

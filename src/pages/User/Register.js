@@ -5,6 +5,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import bcrypt from 'bcryptjs';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import Header from '../../components/common/header';
+import Footer from '../../components/common/footer';
 
 const Register = () => {
     const [register, setRegister] = useState({
@@ -129,48 +131,52 @@ const Register = () => {
     };
 
     return (
-        <section className='loginul'>
-            <div className='container'>
-                <div className="login-div">
-                    <Link to="/login" className='back-button'>Back</Link>
-                    <form className='login' onSubmit={handleSubmit}>
-                        <h1 className="sign">Sign Up</h1>
-                        <div id="errormessage">{register.errorCode && <p>{register.errorCode}</p>}</div>
-                        <div className="input-text">
-                            <input type="text" name="name" placeholder="Enter your name" value={register.name} onChange={handleInputChange} />
-                        </div>
-                        <div className="input-text">
-                            <input type="email" name="email" placeholder="Enter your Email" value={register.email} onChange={handleInputChange} />
-                        </div>
-                        <div className="input-with-icon">
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                name="password"
-                                placeholder="Enter your password"
-                                value={register.password}
-                                onChange={handleInputChange}
-                            />
-                            <button type="button" onClick={togglePasswordVisibility}>
-                                <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
-                            </button>
-                        </div>
-                        <div className="input-with-icon">
-                            <input
-                                type={showConfirmPassword ? "text" : "password"}
-                                name="confirmPassword"
-                                placeholder="Confirm password"
-                                value={register.confirmPassword}
-                                onChange={handleInputChange}
-                            />
-                            <button type="button" onClick={toggleConfirmPasswordVisibility}>
-                                <FontAwesomeIcon icon={showConfirmPassword ? faEye : faEyeSlash} />
-                            </button>
-                        </div>
-                        <button className='signin-button' type='submit'>Sign Up</button>
-                    </form>
+        <div>
+            <Header />
+            <section className='loginul'>
+                <div className='container'>
+                    <div className="login-div">
+                        <Link to="/login" className='back-button'>Back</Link>
+                        <form className='login' onSubmit={handleSubmit}>
+                            <h1 className="sign">Sign Up</h1>
+                            <div id="errormessage">{register.errorCode && <p>{register.errorCode}</p>}</div>
+                            <div className="input-text">
+                                <input type="text" name="name" placeholder="Enter your name" value={register.name} onChange={handleInputChange} />
+                            </div>
+                            <div className="input-text">
+                                <input type="email" name="email" placeholder="Enter your Email" value={register.email} onChange={handleInputChange} />
+                            </div>
+                            <div className="input-with-icon">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    name="password"
+                                    placeholder="Enter your password"
+                                    value={register.password}
+                                    onChange={handleInputChange}
+                                />
+                                <button type="button" onClick={togglePasswordVisibility}>
+                                    <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
+                                </button>
+                            </div>
+                            <div className="input-with-icon">
+                                <input
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    name="confirmPassword"
+                                    placeholder="Confirm password"
+                                    value={register.confirmPassword}
+                                    onChange={handleInputChange}
+                                />
+                                <button type="button" onClick={toggleConfirmPasswordVisibility}>
+                                    <FontAwesomeIcon icon={showConfirmPassword ? faEye : faEyeSlash} />
+                                </button>
+                            </div>
+                            <button className='signin-button' type='submit'>Sign Up</button>
+                        </form>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+            <Footer />
+        </div>
     );
 };
 
