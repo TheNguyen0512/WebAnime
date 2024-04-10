@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import swal from 'sweetalert';
+import HeaderAdmin from '../../components/common/headerAdmin';
+import Sidebar from '../../components/common/SidebarMenu';
+import '../../components/assets/css/admin1.css'; // Import CSS file for HeaderAdmin
 
 const Admin = () => {
+  
   const [movies, setMovies] = useState([]);
   const [activeTab, setActiveTab] = useState('movies');
   const [newName, setNewName] = useState('');
@@ -16,10 +20,13 @@ const Admin = () => {
   const [newGenres, setNewGenres] = useState('');
   const [newOverview, setNewOverview] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(false); // State to track the open/close state of Sidebar
 
   useEffect(() => {
     fetchMovies();
   }, []);
+
+  
 
   const fetchMovies = () => {
     axios.get('http://localhost:3030/upcoming-anime')
@@ -37,32 +44,22 @@ const Admin = () => {
       });
   };
 
-  // Function to delete a movie by ID
   const deleteMovie = (id) => {
-    // Send a request to delete the movie
     axios.delete(`http://localhost:3030/anime/${id}`)
       .then(response => {
         console.log('Movie deleted successfully');
-
-        // Refresh movie list after deletion
         fetchMovies();
-
-        // Display success notification
         swal('Success', 'Movie deleted successfully', 'success');
       })
       .catch(error => {
         console.error('Error deleting movie:', error);
-        // Display error notification
         swal('Error', 'Failed to delete movie', 'error');
       });
   };
 
-
-  // Function to handle the form submission for adding a new movie
   const handleAddMovie = async (event) => {
     event.preventDefault();
 
-    // Thực hiện gửi yêu cầu POST để thêm bộ phim mới
     try {
       const response = await axios.post('http://localhost:3030/add-movie', {
         name: newName,
@@ -80,7 +77,6 @@ const Admin = () => {
       swal('Success', 'New Anime added successfully', 'success');
 
       console.log('New movie added successfully');
-      // Clear input fields
       setNewName('');
       setNewType('');
       setNewDirector('');
@@ -92,7 +88,6 @@ const Admin = () => {
       setNewOverview('');
       setVideoUrl('');
 
-      // Refresh movie list after addition
       fetchMovies();
     } catch (error) {
       console.error('Error adding new movie:', error);
@@ -100,140 +95,148 @@ const Admin = () => {
     }
   };
 
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
   return (
-    <section className="profile">
-      <div className="profile container">
-        <div>
-          <div className="admin-navbar">
-            <div className="nav-item-container">
-              <button className={`nav-item ${activeTab === 'movies' ? 'active' : ''}`} onClick={() => setActiveTab('movies')}>Anime List</button>
-              <button className={`nav-item ${activeTab === 'addMovie' ? 'active' : ''}`} onClick={() => setActiveTab('addMovie')}>Add Anime</button>
-            </div>
-          </div>
-          <div className='nav-item active' >
-            {activeTab === 'movies' && (
-              <div>
-                <h2>Movies List</h2>
-                <ul className="list-movies">
-                  {movies.map((movie, index) => (
-                    <li key={movie.id} className="movie-item">
-                      <span className="index">{index + 1}</span>
-                      <span className="movie-name">{movie.ani_name}</span>
-                      <span className="movie-image">
-                        <img src={movie.imageUrl} alt={movie.ani_name} />
-                      </span>
-                      <Link to={`/admin/edit/${movie.id}`} className="edit-button">Edit</Link>
-                      <button className="delete-button" onClick={() => deleteMovie(movie.id)}>Delete</button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {activeTab === 'addMovie' && (
-              <div>
-                <h2>Add New Movie</h2>
-                <div className="anime-details">
-                  <div className="anime-info">
-                    <h4>Name:</h4>
-                    <input
-                      type="text"
-                      value={newName}
-                      onChange={(e) => setNewName(e.target.value)}
-                    />
-                  </div>
-                  <div className="anime-info">
-                    <h4>Image:</h4>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange=""
-                    />
-                    {"anime.imageUrl" && (
-                      <img src="" alt="" className="anime-image" />
-                    )}
-                  </div>
-                  <div className="anime-info">
-                    <h4>Type:</h4>
-                    <input
-                      type="text"
-                      value={newType}
-                      onChange={(e) => setNewType(e.target.value)}
-                    />
-                  </div>
-                  <div className="anime-info">
-                    <h4>Director:</h4>
-                    <input
-                      type="text"
-                      value={newDirector}
-                      onChange={(e) => setNewDirector(e.target.value)}
-                    />
-                  </div>
-                  <div className="anime-info">
-                    <h4>Episodes:</h4>
-                    <input
-                      type="number"
-                      value={newEpisodes}
-                      onChange={(e) => setNewEpisodes(e.target.value)}
-                    />
-                  </div>
-                  <div className="anime-info">
-                    <h4>Rating:</h4>
-                    <input
-                      type="text"
-                      value={newRating}
-                      onChange={(e) => setNewRating(e.target.value)}
-                    />
-                  </div>
-                  <div className="anime-info">
-                    <h4>Season:</h4>
-                    <input
-                      type="text"
-                      value={newSeason}
-                      onChange={(e) => setNewSeason(e.target.value)}
-                    />
-                  </div>
-                  <div className="anime-info">
-                    <h4>Studio:</h4>
-                    <input
-                      type="text"
-                      value={newStudio}
-                      onChange={(e) => setNewStudio(e.target.value)}
-                    />
-                  </div>
-                  <div className="anime-info">
-                    <h4>Genres:</h4>
-                    <input
-                      type="text"
-                      value={newGenres}
-                      onChange={(e) => setNewGenres(e.target.value)}
-                    />
-                  </div>
-                  <div className="anime-info">
-                    <h4>Overview:</h4>
-                    <input
-                      type="text"
-                      value={newOverview}
-                      onChange={(e) => setNewOverview(e.target.value)}
-                    />
-                  </div>
-                  <div className="anime-info-video">
-                    <h4>Video URL:</h4>
-                    <input
-                      type="text"
-                      value={videoUrl}
-                      onChange={(e) => setVideoUrl(e.target.value)}
-                    />
-                  </div>
+    <div className="admin-container">
+      <HeaderAdmin toggleSidebar={toggleSidebar} />
+      <div className="sidebar-wrapper">
+        <Sidebar setActiveTab={setActiveTab} />
+        <div className={`sidebar-content ${sidebarOpen ? 'active' : ''}`}>
+          <section className="profile">
+            <div className="profile ">
+              <div className="admin-navbar">
+                <div className="nav-item-container">
+                  <button className={`nav-item ${activeTab === 'movies' ? 'active' : ''}`} onClick={() => setActiveTab('movies')}>Anime List</button>
+                  <button className={`nav-item ${activeTab === 'addMovie' ? 'active' : ''}`} onClick={() => setActiveTab('addMovie')}>Add Anime</button>
                 </div>
-
-                <button type="submit" onClick={handleAddMovie}>Add Movie</button>
               </div>
-            )}
-          </div>
-
+            </div>
+          </section>
+        </div>
+        <div className={`setActiveTab ${sidebarOpen ? 'active' : ''}`}>
+          {activeTab === 'movies' && (
+            <div>
+              <h1 style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Movies List</h1>
+              <ul className="list-movies">
+                {movies.map((movie, index) => (
+                  <li key={movie.id} className="movie-item">
+                    <span className="index">{index + 1}</span>
+                    <span className="movie-name">{movie.ani_name}</span>
+                    <span className="movie-image">
+                      <img src={movie.imageUrl} alt={movie.ani_name} />
+                    </span>
+                    <Link to={`/admin/edit/${movie.id}`} className="edit-button">Edit</Link>
+                    <button className="delete-button" onClick={() => deleteMovie(movie.id)}>Delete</button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {activeTab === 'addMovie' && (
+            <div>
+              <h1 style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Add New Movie</h1>
+              <div className="anime-details">
+                <div className="anime-info">
+                  <h3>Name: </h3>
+                  <input
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                  />
+                </div>
+                <div className="anime-info">
+                  <h3>Image:</h3>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange=""
+                  />
+                  {"anime.imageUrl" && (
+                    <img src="" alt="" className="anime-image" />
+                  )}
+                </div>
+                <div className="anime-info">
+                  <h3>Type: </h3>
+                  <input
+                    type="text"
+                    value={newType}
+                    onChange={(e) => setNewType(e.target.value)}
+                  />
+                </div>
+                <div className="anime-info">
+                  <h3>Director: </h3>
+                  <input
+                    type="text"
+                    value={newDirector}
+                    onChange={(e) => setNewDirector(e.target.value)}
+                  />
+                </div>
+                <div className="anime-info">
+                  <h3>Episodes: </h3>
+                  <input
+                    type="number"
+                    value={newEpisodes}
+                    onChange={(e) => setNewEpisodes(e.target.value)}
+                  />
+                </div>
+                <div className="anime-info">
+                  <h3>Rating: </h3>
+                  <input
+                    type="text"
+                    value={newRating}
+                    onChange={(e) => setNewRating(e.target.value)}
+                  />
+                </div>
+                <div className="anime-info">
+                  <h3>Season: </h3>
+                  <input
+                    type="text"
+                    value={newSeason}
+                    onChange={(e) => setNewSeason(e.target.value)}
+                  />
+                </div>
+                <div className="anime-info">
+                  <h3>Studio: </h3>
+                  <input
+                    type="text"
+                    value={newStudio}
+                    onChange={(e) => setNewStudio(e.target.value)}
+                  />
+                </div>
+                <div className="anime-info">
+                  <h3>Genres: </h3>
+                  <input
+                    type="text"
+                    value={newGenres}
+                    onChange={(e) => setNewGenres(e.target.value)}
+                  />
+                </div>
+                <div className="anime-info">
+                  <h3>Overview: </h3>
+                  <input
+                    type="text"
+                    value={newOverview}
+                    onChange={(e) => setNewOverview(e.target.value)}
+                  />
+                </div>
+                <div className="anime-info-video">
+                  <h3>Video URL:</h3>
+                  <input
+                    type="text"
+                    value={videoUrl}
+                    onChange={(e) => setVideoUrl(e.target.value)}
+                  />
+                </div>
+              </div>
+              <button type="submit" onClick={handleAddMovie}>Add Movie</button>
+            </div>
+          )}
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 

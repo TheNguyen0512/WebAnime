@@ -91,8 +91,6 @@ const Header = () => {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        console.log("location" + location.pathname);
-        console.log("isAdmin: " + isAdmin);
 
         if (!token) {
             // If not logged in, redirect to login page if trying to access certain routes
@@ -121,9 +119,7 @@ const Header = () => {
             .catch(error => {
                 console.error('Error searching anime:', error);
             });
-    };
-
-    
+    };    
 
     const handleLogout = () => {
         localStorage.removeItem('token');

@@ -65,7 +65,7 @@
     background-color: #fdfdfd;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    color: black;
+    color: rgb(255, 255, 255);
 }
 
 .nav-item.active {
@@ -78,7 +78,7 @@
 }
 
 .anime-details {
-    width: 100%;
+    width: auto;
     margin-bottom: 20px;
     padding: 20px;
     background-color: #f0f0f0;
