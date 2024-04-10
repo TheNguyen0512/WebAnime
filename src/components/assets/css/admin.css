@@ -1,0 +1,164 @@
+/* Admin.css */
+
+.list-movies {
+    list-style: none;
+    padding: 0;
+}
+
+.movie-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.index {
+    flex-basis: 5%;
+}
+
+.movie-name {
+    flex-grow: 2;
+    margin-right: 10px;
+}
+
+.movie-image img {
+    width: 100px;
+    height: auto;
+}
+
+.edit-button,
+.delete-button {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.edit-button {
+    background-color: #1850eb;
+    color: #fff;
+    border: none;
+    margin-left: 10px;
+}
+
+.delete-button {
+    background-color: #ff6347;
+    color: #fff;
+    border: none;
+    margin-left: 10px;
+}
+
+.delete-button:hover {
+    background-color: #d84315;
+}
+
+.admin-navbar {
+    display: flex;
+    justify-content: center;
+}
+
+.nav-item-container {
+    display: flex;
+}
+
+.nav-item {
+    padding: 10px 20px;
+    background-color: #fdfdfd;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    color: black;
+}
+
+.nav-item.active {
+    background-color: #515367;
+    border: 10px;
+}
+
+.nav-item:not(:last-child) {
+    margin-right: 10px;
+}
+
+.anime-details {
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 20px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.anime-details>div {
+    margin-bottom: 10px;
+}
+
+.anime-details h4 {
+    margin-bottom: 5px;
+}
+
+.anime-details img {
+    width: 100%;
+    border-radius: 5px;
+}
+
+.edit-button-container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.edit-button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+.edit-button:hover {
+    background-color: #0056b3;
+}
+
+.anime-info {
+    display: flex;
+    /* Sử dụng flexbox để hiển thị các phần tử con theo chiều ngang */
+    justify-content: space-between;
+    /* Các phần tử con sẽ được căn giữa và căn đều khoảng cách giữa chúng */
+    align-items: center;
+    /* Căn chỉnh các phần tử con theo chiều dọc */
+    margin-bottom: 10px;
+    /* Khoảng cách dưới của mỗi phần thông tin */
+}
+
+.anime-info h4 {
+    margin-right: 10px;
+    /* Khoảng cách phải của các tiêu đề */
+}
+
+.anime-info input {
+    flex: 1;
+    /* Để input mở rộng và điều chỉnh kích thước theo cần thiết */
+}
+
+.anime-image {
+    max-width: 200px;
+    /* Đặt kích thước tối đa cho hình ảnh */
+    height: auto;
+    /* Giữ tỉ lệ khung hình */
+}
+
+.anime-info-video {
+    margin-top: 20px;
+    /* Để tạo khoảng cách giữa phần trước và phần này */
+}
+
+.anime-info-video h4 {
+    margin-bottom: 10px;
+    /* Để tạo khoảng cách giữa tiêu đề và phần nhập */
+}
+
+.anime-info-video input {
+    text-overflow: clip;
+    /* Độ cao của ô nhập là 200px */
+    width: 100%;
+    /* Chiều rộng của ô nhập sẽ căn vừa với phần tử chứa nó */
+    white-space: pre-line;
+}

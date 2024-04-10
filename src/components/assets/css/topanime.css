@@ -1,0 +1,86 @@
+/* styles.css */
+
+.top-rated {
+    margin-top: 120px;
+    padding: 20px;
+}
+
+.top-list {
+    list-style: none;
+    padding: 0;
+}
+
+.top-list li {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    /* Khung bao quanh mỗi movie */
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.movie-card2 {
+    display: flex;
+    width: 100%;
+}
+
+.card-banner2 {
+    width: 200px;
+    /* Độ rộng của hình ảnh */
+    margin-right: 20px;
+    /* Khoảng cách giữa hình ảnh và nội dung */
+}
+
+.card-banner2 img {
+    width: auto;
+    /* Thay đổi từ 100% thành auto để giữ kích thước tự nhiên của hình ảnh */
+    max-width: 100%;
+    /* Đảm bảo hình ảnh không vượt quá kích thước của khung */
+    height: auto;
+    /* Đảm bảo tỷ lệ khung hình ảnh không bị biến dạng */
+}
+
+.movie-top-image {
+    width: 20%;
+    margin-right: 20px;
+}
+
+.title-wrapper {
+    flex-grow: 1;
+}
+
+.favorite-icon,
+.whitelist-icon {
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.wishlist-list {
+    list-style-type: none;
+    padding: 10px; /* Add 'px' unit */
+    display: table-row;
+}
+
+
+.wishlist-item {
+    display: flex;
+    align-items: center;
+    
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.index {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.wishlist-image {
+    width: 20%;
+    height: auto;
+    border-radius: 5px;
+}
+
+.wishlist-title {
+    margin: 0;
+}
